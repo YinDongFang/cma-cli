@@ -1,5 +1,5 @@
-const path = './libs/'
-const list = ['js2json', 'svg-decorator']
+const path = './plugins/'
+const list = ['js2json', 'svg-decorator', 'svg-viewer']
 
 const plugins = list.map((name) => require(path + name))
 

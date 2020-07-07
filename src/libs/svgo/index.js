@@ -2,12 +2,10 @@
 
 const fs = require('fs')
 const Svgo = require('svgo')
-const applyColor = require('./applyColor')
-const applySize = require('./applySize')
 
-function initialize(plugins) {
+function initialize(plugins, base64) {
   return new Svgo({
-    datauri: 'base64',
+    datauri: base64 ? 'base64' : undefined,
     plugins: [
       {
         cleanupAttrs: true,
@@ -116,21 +114,26 @@ function initialize(plugins) {
   })
 }
 
-module.exports = function optimize(filepath, color, size) {
-  return new Promise((resolve, reject) => {
-    const applyColorPlugin = applyColor(color)
+module.exports = function optimize(filepath, plugins, base64 = true) {
+  return new Promise((resolve) => {
     fs.readFile(filepath, 'utf8', function (err, data) {
-      initialize([
-        {
-          applyColor: applyColorPlugin,
-        },
-        {
-          applySize: applySize(size.width, size.height),
-        },
-      ])
+      initialize(
+        plugins.map((plugin) =>
+          plugin.custom
+            ? {
+                [plugin.name]: plugin,
+              }
+            : plugin
+        ),
+        base64
+      )
         .optimize(data, {path: filepath})
         .then(function (result) {
-          result.info.color = applyColorPlugin.params.color
+          plugins.forEach((plugin) => {
+            if (typeof plugin.after === 'function') {
+              plugin.after(result)
+            }
+          })
           resolve(result)
         })
     })

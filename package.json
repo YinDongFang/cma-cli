@@ -43,6 +43,12 @@
           "format": "uri",
           "description": "Specifies the Svg files path relative to workspaceFolders."
         },
+        "cmaCli.svgViewer.path": {
+          "type": "string",
+          "default": "/src/styles/svg",
+          "format": "uri",
+          "description": "Specifies the Svg files path relative to workspaceFolders."
+        }
       }
     },
     "menus": {
@@ -58,6 +64,11 @@
       {
         "command": "js2json.transform",
         "title": "CMA - Transform to Json"
+      },
+      {
+        "command": "svgViwer.all",
+        "title": "Preview all svg file and do something",
+        "category": "CmaCli.SvgViewer"
       }
     ],
     "views": {

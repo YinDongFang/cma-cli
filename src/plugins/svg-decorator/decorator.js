@@ -2,14 +2,16 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-06 14:17:11
- * @LastEditTime: 2020-07-07 01:10:30
+ * @LastEditTime: 2020-07-08 01:33:58
  * @LastEditors: Ian
  * @Description:
  */
 const {window, DecorationRangeBehavior, Uri} = require('vscode')
 const {config} = require('./config')
 const ColorLibrary = require('tinycolor2')
-const svgo = require('./svgo')
+const svgo = require('../../libs/svgo')
+const applyColor = require('../../libs/svgo/plugins/applyColor')
+const applySize = require('../../libs/svgo/plugins/applySize')
 
 function contrastColor(color) {
   let {r, g, b} = ColorLibrary(color).toRgb()
@@ -22,8 +24,6 @@ function normaliseColor(color) {
 }
 
 const SvgDecorator = function (name, color) {
-  console.log({name, color})
-
   this.color = color
   this.name = name
   this.ranges = []
@@ -37,7 +37,7 @@ SvgDecorator.prototype.createDecoration = async function () {
   const {
     data: svg,
     info: {color},
-  } = await svgo(`${config.path}/${this.name}.svg`, this.color, {width: '15', height: '15'})
+  } = await svgo(`${config.path}/${this.name}.svg`, [applyColor(this.color), applySize(15, 15)])
 
   this.color = normaliseColor((color || '#333333').toLowerCase())
   this.negativeColor = contrastColor(this.color)
