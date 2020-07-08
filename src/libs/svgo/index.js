@@ -114,7 +114,7 @@ function initialize(plugins, base64) {
   })
 }
 
-module.exports = function optimize(filepath, plugins, base64 = true) {
+module.exports = function optimize(filepath, plugins = [], base64 = true) {
   return new Promise((resolve) => {
     fs.readFile(filepath, 'utf8', function (err, data) {
       initialize(

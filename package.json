@@ -11,6 +11,7 @@
   "dependencies": {
     "@aws-sdk/util-utf8-node": "^0.1.0-preview.1",
     "@babel/core": "^7.10.3",
+    "clipboardy": "^2.3.0",
     "element-ui": "^2.4.5",
     "svgo": "^1.3.2",
     "tinycolor2": "^1.4.1"
@@ -37,13 +38,7 @@
     "configuration": {
       "title": "cmaCli",
       "properties": {
-        "cmaCli.svgDecorator.path": {
-          "type": "string",
-          "default": "/src/styles/svg",
-          "format": "uri",
-          "description": "Specifies the Svg files path relative to workspaceFolders."
-        },
-        "cmaCli.svgViewer.path": {
+        "cmaCli.svgFolder": {
           "type": "string",
           "default": "/src/styles/svg",
           "format": "uri",
@@ -54,21 +49,76 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "js2json.transform",
+          "command": "cmacli.js2json.transform",
           "when": "resourceLangId == javascript",
           "group": "7_modification"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "cmacli.svgViewer.treeView.refresh",
+          "when": "view == svg",
+          "group": "navigation"
+        },
+        {
+          "command": "cmacli.svgViewer.treeView.viewAll",
+          "when": "view == svg",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "cmacli.svgViewer.treeView.copy",
+          "when": "view == svg",
+          "group": "inline"
+        },
+        {
+          "command": "cmacli.svgViewer.treeView.code",
+          "when": "view == svg",
+          "group": "inline"
+        },
+        {
+          "command": "cmacli.svgViewer.treeView.view",
+          "when": "view == svg",
+          "group": "inline"
         }
       ]
     },
     "commands": [
       {
-        "command": "js2json.transform",
-        "title": "CMA - Transform to Json"
+        "command": "cmacli.js2json.transform",
+        "title": "Transform to Json",
+        "category": "CmaCli.Js2Json"
       },
       {
-        "command": "svgViwer.all",
-        "title": "Preview all svg file and do something",
+        "command": "cmacli.svgViewer.preview",
+        "title": "Preview svg files and do something",
         "category": "CmaCli.SvgViewer"
+      },
+      {
+        "command": "cmacli.svgViewer.treeView.refresh",
+        "title": "Refresh",
+        "icon": "src/media/refresh.svg"
+      },
+      {
+        "command": "cmacli.svgViewer.treeView.viewAll",
+        "title": "View All",
+        "icon": "src/media/view.svg"
+      },
+      {
+        "command": "cmacli.svgViewer.treeView.copy",
+        "title": "Copy Name",
+        "icon": "src/media/copy.svg"
+      },
+      {
+        "command": "cmacli.svgViewer.treeView.code",
+        "title": "Copy Code",
+        "icon": "src/media/code.svg"
+      },
+      {
+        "command": "cmacli.svgViewer.treeView.view",
+        "title": "View",
+        "icon": "src/media/view.svg"
       }
     ],
     "views": {
@@ -80,6 +130,10 @@
         {
           "id": "api",
           "name": "api"
+        },
+        {
+          "id": "svg",
+          "name": "svg"
         }
       ]
     },
