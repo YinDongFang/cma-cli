@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-06 14:03:59
- * @LastEditTime: 2020-07-08 15:23:16
+ * @LastEditTime: 2020-07-08 17:44:45
  * @LastEditors: Ian
  * @Description:
  */
@@ -92,7 +92,7 @@ function activate(context) {
         panel = vscode.window.createWebviewPanel(
           'CmaCli.SvgViewer', // Identifies the type of the webview. Used internally
           'Svg Preview', // Title of the panel displayed to the user
-          vscode.window.activeTextEditor.viewColumn, // Editor column to show the new webview panel in.
+          vscode.ViewColumn.Active, // Editor column to show the new webview panel in.
           {
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, folder))],
             enableScripts: true,
@@ -136,9 +136,11 @@ function activate(context) {
   })
   vscode.commands.registerCommand('cmacli.svgViewer.treeView.copy', (svgItem) => {
     clipboardy.writeSync(svgItem.label)
+    vscode.window.showInformationMessage('复制成功');
   })
   vscode.commands.registerCommand('cmacli.svgViewer.treeView.code', (svgItem) => {
     clipboardy.writeSync(`<svg-icon icon-class="${svgItem.label}" />`)
+    vscode.window.showInformationMessage('复制成功');
   })
 }
 

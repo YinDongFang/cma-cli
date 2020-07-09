@@ -1,6 +1,6 @@
 {
   "name": "lifetouch-cma-cli",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "户乐CMA项目脚手架",
   "scripts": {
     "lint": "eslint .",
