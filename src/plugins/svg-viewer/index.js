@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-06 14:03:59
- * @LastEditTime: 2020-07-08 17:44:45
+ * @LastEditTime: 2020-07-20 23:18:36
  * @LastEditors: Ian
  * @Description:
  */
@@ -80,6 +80,8 @@ function show(name) {
 }
 
 function activate(context) {
+  console.log('cma-cli:svg-viewer is activated')
+
   context.subscriptions.push(
     vscode.commands.registerCommand('cmacli.svgViewer.preview', (name) => {
       const folder = path.join('src', 'plugins', 'svg-viewer', 'dist')
