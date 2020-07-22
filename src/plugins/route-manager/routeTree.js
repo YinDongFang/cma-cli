@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-08 12:52:27
- * @LastEditTime: 2020-07-21 14:31:49
+ * @LastEditTime: 2020-07-22 14:53:07
  * @LastEditors: Ian
  * @Description:
  */
@@ -12,14 +12,19 @@ const path = require('path')
 const svgo = require('../../libs/svgo')
 const applyColor = require('../../libs/svgo/plugins/applyColor')
 
+const global = require(path.resolve(__dirname, './global'))
+
 module.exports = class RouteTreeProvider {
-  constructor(routes, names, svgFolder, extensionPath) {
+  constructor() {
     this._onDidChangeTreeData = new vscode.EventEmitter()
     this.onDidChangeTreeData = this._onDidChangeTreeData.event
-    this.routes = routes
-    this.names = names
-    this.svgFolder = svgFolder
-    this.extensionPath = extensionPath
+    this.reset()
+  }
+
+  reset() {
+    this.routes = global.routes
+    this.svgFolder = global.svgFolder
+    this.extensionPath = global.context.extensionPath
   }
 
   getTreeItem(element) {
@@ -40,15 +45,8 @@ module.exports = class RouteTreeProvider {
     return this.getRouteItems(list)
   }
 
-  findName(name) {
-    const list = name.split('.')
-    return list.reduce((obj, key) => obj && obj[key], {route: this.names})
-  }
-
   getRouteItems(routes) {
     return routes.map((route) => {
-      const name = this.findName(route.meta.title)
-      route.label = name
       if (route.meta.icon) {
         return svgo(path.join(this.svgFolder, `${route.meta.icon}.svg`), [
           applyColor('#e6e6e6'),
@@ -64,7 +62,7 @@ module.exports = class RouteTreeProvider {
 
 class RouteItem extends vscode.TreeItem {
   constructor(route, icon) {
-    super(route.label)
+    super(route.title)
     this.route = route
     this.iconPath = icon
     this.tooltip = route.filepath

@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-09 22:26:15
- * @LastEditTime: 2020-07-20 17:48:51
+ * @LastEditTime: 2020-07-22 12:07:55
  * @LastEditors: Ian
  * @Description:
  */
@@ -35,6 +35,8 @@ module.exports = (root, entry, context) => {
                 plugins: [
                   path.resolve(__dirname, './plugins/replace-import-to-literal-string.js'),
                   path.resolve(__dirname, './plugins/normalize-route-object'),
+                  path.resolve(__dirname, './plugins/enum-extra-location'),
+                  [path.resolve(__dirname, './plugins/export-extra-object'), {entry}],
                 ],
               },
             },
@@ -53,7 +55,9 @@ module.exports = (root, entry, context) => {
     compiler.run((err, stats) => {
       if (err) reject(err)
 
-      resolve(stats)
+      console.dir(stats.compilation.errors)
+      
+      resolve(stats.compilation)
     })
   })
 }

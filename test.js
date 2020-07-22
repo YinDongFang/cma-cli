@@ -1,16 +1,3 @@
-/*
- * @Author: Ian
- * @Email: 1136005348@qq.com
- * @Date: 2020-07-21 14:59:03
- * @LastEditTime: 2020-07-21 21:16:45
- * @LastEditors: Ian
- * @Description:
- */
+const {default: template} = require('@babel/template')
 
-const a = {
-  a: 1,
-  b: 2,
-}
-for (const iterator of Object.values) {
-  console.log(iterator)
-}
+console.log(template.ast(`import { PERMISSION_PAGE } from '@/enum/types/permissionEnums';`))
