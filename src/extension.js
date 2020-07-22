@@ -1,7 +1,7 @@
 const vscode = require('vscode')
 
 const path = './plugins/'
-const list = ['js2json', 'svg-decorator', 'svg-viewer', 'route-manager']
+const list = ['js2json', 'svg-decorator', 'svg-viewer', 'route-manager', 'vue-template']
 
 const plugins = list.map((name) => require(path + name))
 
