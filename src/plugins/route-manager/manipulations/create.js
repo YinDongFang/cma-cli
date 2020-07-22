@@ -29,7 +29,6 @@ async function i18nKeypath() {
 
   const result = await vscode.window.showInformationMessage(
     'Key already exists. Do you want to use the existing key or re-enter?',
-    {modal: true},
     'Yes',
     'Re-enter'
   )
@@ -53,7 +52,6 @@ async function validateEnumkey() {
 
   const result = await vscode.window.showInformationMessage(
     'Key already exists. Do you want to use the existing key or re-enter?',
-    {modal: true},
     'Yes',
     'Re-enter'
   )
@@ -77,7 +75,6 @@ async function validatePermission() {
 
   const result = await vscode.window.showInformationMessage(
     'Key already exists. Do you want to use the existing key or re-enter?',
-    {modal: true},
     'Yes',
     'Re-enter'
   )
