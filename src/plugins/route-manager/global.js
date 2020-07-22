@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-22 11:14:47
- * @LastEditTime: 2020-07-22 15:01:45
+ * @LastEditTime: 2020-07-22 17:13:47
  * @LastEditors: Ian
  * @Description:
  */
@@ -34,7 +34,7 @@ const global = {
   flattenRoutes: [],
   // value->key的映射
   permissionRevertMap: new Map(),
-  routeEnumRevertMap: new Map(),
+  routeEnumsRevertMap: new Map(),
   // key->route的映射
   permissionMap: new Map(),
   routeEnumsMap: new Map(),
@@ -65,12 +65,12 @@ const global = {
 
     // 保存反向映射
     this.permissionRevertMap = new Map()
-    this.routeEnumRevertMap = new Map()
+    this.routeEnumsRevertMap = new Map()
     Object.entries(result.PERMISSION_PAGE).forEach(([key, {value}]) => {
       this.permissionRevertMap.set(value, key)
     })
     Object.entries(result.RouteEnums).forEach(([key, {value}]) => {
-      this.routeEnumRevertMap.set(value, key)
+      this.routeEnumsRevertMap.set(value, key)
     })
 
     // 保存permission,routeEnum->route的映射
@@ -81,7 +81,7 @@ const global = {
         const key = this.permissionRevertMap.get(route.meta.permission.value)
         this.permissionMap.set(key, route)
       }
-      const routeKey = this.routeEnumRevertMap.get(route.name.value)
+      const routeKey = this.routeEnumsRevertMap.get(route.name.value)
       this.routeEnumsMap.set(routeKey, route)
     })
   },

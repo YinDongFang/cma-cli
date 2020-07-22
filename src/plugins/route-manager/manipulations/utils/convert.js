@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-21 20:00:38
- * @LastEditTime: 2020-07-21 20:33:45
+ * @LastEditTime: 2020-07-22 17:14:50
  * @LastEditors: Ian
  * @Description:
  */
@@ -56,6 +56,4 @@ const convert = {
     return camel
   },
 }
-
-const res = convert.toConst('msgMgntPermissionList')
-console.log(res)
+module.exports = convert

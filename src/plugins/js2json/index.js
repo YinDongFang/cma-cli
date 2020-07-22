@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-06 14:03:59
- * @LastEditTime: 2020-07-06 14:58:23
+ * @LastEditTime: 2020-07-22 18:40:47
  * @LastEditors: Ian
  * @Description:
  */
@@ -15,7 +15,7 @@ const plugin = require('./plugin')
 
 function activate(context) {
   console.log('cma-cli:js2json is activated')
-  let disposable = vscode.commands.registerCommand('js2json.transform', async function ({path, fsPath}) {
+  let disposable = vscode.commands.registerCommand('cmacli.js2json.transform', async function ({path, fsPath}) {
     // 记载源代码
     const name = p.relative(vscode.workspace.workspaceFolders[0].uri.fsPath, fsPath)
     const data = await vscode.workspace.fs.readFile(vscode.Uri.file(path))

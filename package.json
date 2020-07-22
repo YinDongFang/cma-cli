@@ -75,9 +75,9 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "cmacli.js2json.transform",
-          "when": "resourceLangId == javascript",
-          "group": "7_modification"
+          "command": "cmacli.vueTemplate.generate",
+          "when": "explorerResourceIsFolder",
+          "group": "navigation"
         }
       ],
       "view/title": [
@@ -150,6 +150,11 @@
         "command": "cmacli.js2json.transform",
         "title": "Transform to Json",
         "category": "CmaCli.Js2Json"
+      },
+      {
+        "command": "cmacli.vueTemplate.generate",
+        "title": "Generate Vue Template",
+        "category": "CmaCli.vueTemplate"
       },
       {
         "command": "cmacli.svgViewer.preview",
