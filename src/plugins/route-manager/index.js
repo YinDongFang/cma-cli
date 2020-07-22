@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-06 14:03:59
- * @LastEditTime: 2020-07-21 00:13:44
+ * @LastEditTime: 2020-07-21 22:29:25
  * @LastEditors: Ian
  * @Description:
  */
@@ -10,10 +10,13 @@
 const vscode = require('vscode')
 const path = require('path')
 const fs = require('fs')
-const readline = require('readline')
+const readObject = require('./readObject')
 
 const RouteTreeProvider = require('./routeTree')
 const compiler = require('./compiler/compiler')
+
+const ctx = {}
+const {create} = require('./manipulations')({ctx})
 
 const root = vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0]
 
@@ -34,40 +37,43 @@ const routeNames = path.join(
 const names = require(routeNames)
 let permissionFilePath
 let routeEnumsFilePath
-
-function readLines(path) {
-  return new Promise((resolve) => {
-    const lines = []
-
-    const readInterface = readline.createInterface({
-      input: fs.createReadStream(path, 'utf-8'),
-    })
-    readInterface.on('line', function (line) {
-      lines.push(line)
-    })
-    readInterface.on('close', function () {
-      resolve(lines)
-    })
-  })
-}
+let permissions
+let routeEnums
 
 async function parse(context) {
-  const stats = await compiler(rootDir, routeEntry, context)
+  const stats = await compiler(rootDir, routeEntry, context.extensionPath)
 
   const modules = stats.compilation.modules.map((m) => m.resource)
   permissionFilePath = modules.find((m) => m.includes('permissionEnums'))
   routeEnumsFilePath = modules.find((m) => m.includes('routeEnums'))
 
+  permissions = readObject(permissionFilePath)
+  routeEnums = readObject(routeEnumsFilePath)
+
+  ctx.permissionFilePath = permissionFilePath
+  ctx.routeEnumsFilePath = routeEnumsFilePath
+  ctx.permissions = permissions
+  ctx.routeEnums = routeEnums
+  ctx.i18n = names
+
   return eval(stats.compilation.assets['main.js'].source()).default
 }
 
-async function activate(context) {
+function getLocation(obj, key) {
+  const values = Object.values(obj)
+  const target = values.find((item) => item.value === key)
+  return target && target.loc
+}
+
+async function activate(context, output) {
   console.log('cma-cli:route-manager is activated')
 
-  const routes = await parse(context.extensionPath)
+  const routes = await parse(context)
+  console.log('routes parse complete')
+  output.appendLine('routes parse complete')
 
-  const permissions = await readLines(permissionFilePath)
-  const routeEnums = await readLines(routeEnumsFilePath)
+  output.appendLine('permissionEnums filePath is: ' + permissionFilePath)
+  output.appendLine('routeEnums filePath is: ' + routeEnumsFilePath)
 
   const routeTreeProvider = new RouteTreeProvider(routes, names, svgFolder, context.extensionPath)
 
@@ -77,24 +83,45 @@ async function activate(context) {
       routeTreeProvider.refresh()
     }),
     vscode.commands.registerCommand('cmacli.routeManager.treeView.file', ({route}) => {
+      output.appendLine('open route file: ' + route.filepath)
       vscode.window.showTextDocument(vscode.Uri.file(route.filepath))
     }),
     vscode.commands.registerCommand('cmacli.routeManager.treeView.permission', ({route}) => {
-      console.log(route)
-      const line = permissions.findIndex((line) => line.includes(route.meta.permission))
+      output.appendLine('open permission: ' + route.meta.permission)
+      const loc = getLocation(permissions, route.meta.permission)
       vscode.window.showTextDocument(vscode.Uri.file(permissionFilePath), {
-        selection: new vscode.Range(line, 0, line, Number.MAX_VALUE),
+        selection: new vscode.Range(
+          loc.start.line - 1,
+          loc.start.column,
+          loc.end.line - 1,
+          loc.end.column
+        ),
       })
     }),
     vscode.commands.registerCommand('cmacli.routeManager.treeView.route', ({route}) => {
-      const line = routeEnums.findIndex((line) => line.includes(route.name))
+      output.appendLine('open route enums: ' + route.name)
+      const loc = getLocation(routeEnums, route.name)
       vscode.window.showTextDocument(vscode.Uri.file(routeEnumsFilePath), {
-        selection: new vscode.Range(line, 0, line, Number.MAX_VALUE),
+        selection: new vscode.Range(
+          loc.start.line - 1,
+          loc.start.column,
+          loc.end.line - 1,
+          loc.end.column
+        ),
       })
     }),
     vscode.commands.registerCommand('cmacli.routeManager.treeView.vue', ({route}) => {
-      const file = route.component.includes('.vue') ? route.component : `${route.component}.vue`
-      vscode.window.showTextDocument(vscode.Uri.file(path.join(rootDir, file)))
+      let filepath = path.join(rootDir, route.component)
+      filepath = /\.vue$/.test(filepath)
+        ? filepath
+        : fs.existsSync(filepath)
+        ? path.join(filepath, 'index.vue')
+        : `${filepath}.vue`
+      output.appendLine('open vue file: ' + filepath)
+      vscode.window.showTextDocument(vscode.Uri.file(filepath))
+    }),
+    vscode.commands.registerCommand('cmacli.routeManager.treeView.create', (node) => {
+      create(node && node.route)
     })
   )
 }

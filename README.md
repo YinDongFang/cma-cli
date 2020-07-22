@@ -7,6 +7,7 @@
 1. 将 js 语言包一键转为 json 语言包
 2. svg-icon 组件插入图标预览
 3. 左侧面板显示svg列表树，并且可以预览，复制代码
+4. RouteManager提供路由查看树，更快定位路由文件和界面文件位置
 
 ## Requirements
 

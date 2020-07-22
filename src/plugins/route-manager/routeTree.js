@@ -2,13 +2,12 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-08 12:52:27
- * @LastEditTime: 2020-07-21 00:15:52
+ * @LastEditTime: 2020-07-21 14:31:49
  * @LastEditors: Ian
  * @Description:
  */
 const vscode = require('vscode')
 const path = require('path')
-const fs = require('fs')
 
 const svgo = require('../../libs/svgo')
 const applyColor = require('../../libs/svgo/plugins/applyColor')
@@ -43,7 +42,7 @@ module.exports = class RouteTreeProvider {
 
   findName(name) {
     const list = name.split('.')
-    return list.reduce((obj, key) => obj[key], {route: this.names})
+    return list.reduce((obj, key) => obj && obj[key], {route: this.names})
   }
 
   getRouteItems(routes) {

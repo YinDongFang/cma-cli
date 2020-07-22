@@ -1,3 +1,5 @@
+const vscode = require('vscode')
+
 const path = './plugins/'
 const list = ['js2json', 'svg-decorator', 'svg-viewer', 'route-manager']
 
@@ -7,8 +9,10 @@ function activate(context) {
   console.log('Congratulations, your extension "lifetouch-cma-cli" is now active!')
   console.log(`plugins list: ${list}`)
 
+  const output = vscode.window.createOutputChannel('CMA Cli')
+
   plugins.forEach((plugin) => {
-    plugin.activate(context)
+    plugin.activate(context, output)
   })
 }
 
