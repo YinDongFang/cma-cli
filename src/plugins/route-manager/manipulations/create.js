@@ -5,14 +5,16 @@ const fs = require('fs')
 const global = require(path.resolve(__dirname, '../global'))
 const {toConst} = require('./utils/convert')
 const {modifyPermission, modifyRouteEnums} = require('./utils/modify')
+const save = require('./utils/save')
 
-async function i18nKeypath() {
+async function i18nKeypath(defaultValue) {
   function exists(keypath) {
     const chains = keypath.split('.')
     return chains.reduce((obj, key) => obj && obj[key], global.i18n)
   }
 
   const keypath = await vscode.window.showInputBox({
+    value: defaultValue,
     prompt: 'Please enter the i18n key',
     ignoreFocusOut: true,
   })
@@ -21,23 +23,26 @@ async function i18nKeypath() {
 
   if (!exists(keypath)) {
     await vscode.commands.executeCommand('i18n-ally.new-key', `route.${keypath}`)
-    console.log('保存完毕')
+    console.log('save i18n key')
     global.i18n = JSON.parse(fs.readFileSync(global.routeNamesFilePath))
+    console.log('i18ns after save')
     console.dir(global.i18n)
     return exists(keypath) && keypath
   }
 
   const result = await vscode.window.showInformationMessage(
     'Key already exists. Do you want to use the existing key or re-enter?',
+    {modal: true},
     'Yes',
     'Re-enter'
   )
   if (result === 'Yes') return keypath
-  if (result === 'Re-enter') return i18nKeypath(global.i18n)
+  if (result === 'Re-enter') return i18nKeypath(keypath)
 }
 
-async function validateEnumkey() {
+async function validateEnumkey(defaultValue) {
   const key = await vscode.window.showInputBox({
+    value: defaultValue,
     prompt: 'Please enter the value of the RouteEnums(Pascal)',
     ignoreFocusOut: true,
   })
@@ -47,20 +52,22 @@ async function validateEnumkey() {
   const cons = toConst(key)
   if (!global.routeEnumsRevertMap.get(key) && !global.routeEnums[cons]) {
     modifyRouteEnums(cons, key)
-    return key
+    return cons
   }
 
   const result = await vscode.window.showInformationMessage(
     'Key already exists. Do you want to use the existing key or re-enter?',
+    {modal: true},
     'Yes',
     'Re-enter'
   )
   if (result === 'Yes') return key
-  if (result === 'Re-enter') return validateEnumkey()
+  if (result === 'Re-enter') return validateEnumkey(key)
 }
 
-async function validatePermission() {
+async function validatePermission(defaultValue) {
   const key = await vscode.window.showInputBox({
+    value: defaultValue,
     prompt: 'Please enter the value of the permission(camel)',
     ignoreFocusOut: true,
   })
@@ -69,17 +76,18 @@ async function validatePermission() {
 
   const cons = toConst(key)
   if (!global.permissionRevertMap.get(key) && !global.permissions[cons]) {
-    modifyPermission(cons, key)
-    return key
+    modifyPermission(cons, `${key}PermissionList`)
+    return cons
   }
 
   const result = await vscode.window.showInformationMessage(
     'Key already exists. Do you want to use the existing key or re-enter?',
+    {modal: true},
     'Yes',
     'Re-enter'
   )
   if (result === 'Yes') return key
-  if (result === 'Re-enter') return validatePermission()
+  if (result === 'Re-enter') return validatePermission(key)
 }
 
 module.exports = async function (route) {
@@ -112,23 +120,71 @@ module.exports = async function (route) {
   })
   if (!exists) return
 
+  let view = ''
   if (exists === 'yes') {
-    const filepath = await vscode.window.showOpenDialog({
+    let filepath = await vscode.window.showOpenDialog({
       canSelectMany: false,
-      defaultUri: vscode.Uri.parse(path.join(global.root, 'views', 'modules')),
+      defaultUri: vscode.Uri.file(path.join(global.root, 'views', 'modules')),
       filters: {
         Vue: ['vue'],
       },
       title: '选择Vue组件',
     })
+    if (!filepath) return
+    filepath = filepath[0].path.substr(1)
+
+    view = filepath
   } else {
-    const filepath = await vscode.window.showOpenDialog({
+    let filepath = await vscode.window.showOpenDialog({
       canSelectFolders: true,
       canSelectMany: false,
-      defaultUri: vscode.Uri.parse(path.join(global.root, 'views', 'modules')),
-      title: '选择文件夹',
+      defaultUri: vscode.Uri.file(path.join(global.root, 'views', 'modules')),
+      title: '选择模板生成文件夹',
     })
+    if (!filepath) return
+    filepath = filepath[0].path.substr(1)
+
+    const fullname = await vscode.commands.executeCommand('cmacli.vueTemplate.generate', filepath)
+    if (!fullname) return
+
+    view = path.join(filepath, fullname)
+  }
+  global.output.appendLine(`vue file is at: ${view}`)
+  view = '@' + path.relative(global.root, view).replace(/\\/g, '/')
+  global.output.appendLine(`the relative path is: ${view}`)
+
+  console.dir({keypath, title, enumKey, permission, isHeader, view})
+
+  const result = await vscode.window.showInformationMessage(
+    'Whether save the route information in new file or current file?',
+    {modal: true},
+    'New File',
+    'Current File'
+  )
+  if (!result) return
+
+  let newFilePath = ''
+  if (result === 'New File') {
+    newFilePath = await vscode.window.showInputBox({
+      value: path.dirname(route.filepath),
+      prompt: 'Please enter the path',
+      ignoreFocusOut: true,
+    })
+    if (!newFilePath) return
   }
 
-  console.dir({keypath, title, enumKey, permission, isHeader})
+  save(
+    {
+      path: keypath,
+      name: enumKey,
+      permission,
+      title: title,
+      isHeader: !!isHeader,
+      component: view,
+    },
+    route,
+    newFilePath
+  )
+
+  global.reload()
 }

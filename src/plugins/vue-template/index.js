@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-06 14:03:59
- * @LastEditTime: 2020-07-22 22:15:06
+ * @LastEditTime: 2020-07-23 10:42:47
  * @LastEditors: Ian
  * @Description:
  */
@@ -11,15 +11,23 @@ const vscode = require('vscode')
 const path = require('path')
 const fs = require('fs')
 
-function activate(context) {
+function activate(context, output) {
   console.log('cma-cli:vue-template is activated')
 
   context.subscriptions.push(
     vscode.commands.registerCommand('cmacli.vueTemplate.generate', async (context) => {
       const folder = typeof context === 'object' ? context.fsPath : context
+      output.appendLine(`target folder path: ${folder}`)
+
+      const config = vscode.workspace.getConfiguration('cmaCli').get('vueTemplateFolder')
+      const workspaceFolder =
+        vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0]
+      const custom = config && workspaceFolder ? path.resolve(workspaceFolder, config) : ''
+
+      output.appendLine(`custom vue template folder path: ${custom}`)
 
       let fullname = ''
-      let choice = ''
+      let choice = 'Not Existing'
 
       do {
         const name = await vscode.window.showInputBox({
@@ -33,16 +41,19 @@ function activate(context) {
         fs.existsSync(path.join(folder, fullname)) &&
         (choice = await vscode.window.showInformationMessage(
           `The file ${fullname} is existing. Do you want to overwrite?`,
+          {modal: true},
           'Overwrite',
           'Re-enter'
         )) === 'Re-enter'
       )
-      console.log(choice)
       if (!choice) return
 
       const templates = fs.readdirSync(path.resolve(__dirname, './templates'), 'utf8')
+      const customTemplates = custom ? fs.readdirSync(custom, 'utf8') : []
 
-      const template = await vscode.window.showQuickPick(templates, {
+      output.appendLine(`custom vue templates: ${customTemplates.join()}`)
+
+      const template = await vscode.window.showQuickPick(templates.concat(customTemplates), {
         placeHolder: 'Please choose a vue template',
         canPickMany: false,
         ignoreFocusOut: true,
@@ -74,7 +85,7 @@ function activate(context) {
 
       fs.writeFileSync(path.join(folder, fullname), document, 'utf8')
 
-      return true
+      return fullname
     })
   )
 }

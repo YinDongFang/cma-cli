@@ -69,6 +69,12 @@
           "default": "/src/assets/i18n/zh-CN/route.module.json",
           "format": "uri",
           "description": "Specifies the route i18n file path relative to workspaceFolders."
+        },
+        "cmaCli.vueTemplateFolder": {
+          "type": "string",
+          "default": "",
+          "format": "uri",
+          "description": "Specifies the absolute custom vue template folder path."
         }
       }
     },
@@ -93,11 +99,6 @@
         },
         {
           "command": "cmacli.routeManager.treeView.refresh",
-          "when": "view == route",
-          "group": "navigation"
-        },
-        {
-          "command": "cmacli.routeManager.treeView.create",
           "when": "view == route",
           "group": "navigation"
         }
