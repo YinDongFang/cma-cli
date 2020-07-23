@@ -3,7 +3,7 @@ const path = require('path')
 const fs = require('fs')
 
 const global = require(path.resolve(__dirname, '../global'))
-const {toConst} = require('./utils/convert')
+const {toConst, toCamel, toPascal} = require('./utils/convert')
 const {modifyPermission, modifyRouteEnums} = require('./utils/modify')
 const save = require('./utils/save')
 
@@ -97,13 +97,18 @@ module.exports = async function (route) {
   })
   if (!keypath) return
 
-  const title = await i18nKeypath()
+  console.log(route.fullpath)
+
+  const fullpath = route.fullpath.replace(/\//g, '.') + '.' + keypath
+  const cons = fullpath.toUpperCase().replace(/\./g, '_')
+
+  const title = await i18nKeypath(fullpath)
   if (!title) return
 
-  const enumKey = await validateEnumkey()
+  const enumKey = await validateEnumkey(toPascal(cons))
   if (!enumKey) return
 
-  const permission = await validatePermission()
+  const permission = await validatePermission(toCamel(cons))
   if (!permission) return
 
   const isHeader = await vscode.window.showQuickPick(['yes', 'no'], {
@@ -186,5 +191,20 @@ module.exports = async function (route) {
     newFilePath
   )
 
-  global.reload()
+  let uri
+  if (newFilePath) {
+    await vscode.window.showTextDocument(vscode.Uri.file(newFilePath))
+    uri = vscode.window.activeTextEditor.document.uri
+    await vscode.commands.executeCommand('editor.action.formatDocument', uri)
+    await vscode.commands.executeCommand('eslint.executeAutofix', uri)
+    await vscode.commands.executeCommand('workbench.action.files.save', uri)
+  }
+
+  await vscode.window.showTextDocument(vscode.Uri.file(route.filepath))
+  uri = vscode.window.activeTextEditor.document.uri
+  await vscode.commands.executeCommand('editor.action.formatDocument', uri)
+  await vscode.commands.executeCommand('eslint.executeAutofix', uri)
+  await vscode.commands.executeCommand('workbench.action.files.save', uri)
+
+  return true
 }

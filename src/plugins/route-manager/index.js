@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-06 14:03:59
- * @LastEditTime: 2020-07-22 14:37:58
+ * @LastEditTime: 2020-07-23 16:34:25
  * @LastEditors: Ian
  * @Description:
  */
@@ -113,8 +113,14 @@ async function activate(context, output) {
       output.appendLine('open vue file: ' + filepath)
       vscode.window.showTextDocument(vscode.Uri.file(filepath))
     }),
-    vscode.commands.registerCommand('cmacli.routeManager.treeView.create', (node) => {
-      create(node && node.route)
+    vscode.commands.registerCommand('cmacli.routeManager.treeView.create', async (node) => {
+      const res = await create(node && node.route)
+      if (res) {
+        await global.reload()
+
+        routeTreeProvider.reset()
+        routeTreeProvider.refresh()
+      }
     })
   )
 }

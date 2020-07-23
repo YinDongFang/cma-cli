@@ -12,11 +12,11 @@ const saveSubRoutePlugin = ({types: t}) => {
       Program: {
         exit({node}, {opts: {newFilePath, key}}) {
           if (newFilePath) {
-            node.body.splice(
-              node.body.length - 1,
-              0,
-              template.ast(`import ${key} from '${newFilePath}'`)
-            )
+            let index = 0
+            for (; index < node.body.length; index++) {
+              if (!t.isImportDeclaration(node.body[index])) break
+            }
+            node.body.splice(index, 0, template.ast(`import ${key} from '${newFilePath}'`))
           }
         },
       },
@@ -28,11 +28,12 @@ const saveSubRoutePlugin = ({types: t}) => {
           )
 
           if (path && path.value.value.replace(/\//g, '') === parentPath) {
-            let children = node.properties.find((prop) => {
-              t.isIdentifier(prop.key) &&
+            let children = node.properties.find(
+              (prop) =>
+                t.isIdentifier(prop.key) &&
                 prop.key.name === 'children' &&
                 t.isArrayExpression(prop.value)
-            })
+            )
 
             if (!children)
               node.properties.push(
@@ -58,8 +59,7 @@ const newFilePlugin = ({types: t}) => {
         exit({node}, {opts: {ast}}) {
           node.body.push(
             ...template.ast(`import RouteEnums from '@/enum/types/routeEnums';
-          import { PERMISSION_PAGE } from '@/enum/types/permissionEnums';
-          import catchImport from '@/router/utils';`)
+          import { PERMISSION_PAGE } from '@/enum/types/permissionEnums';`)
           )
           node.body.push(t.exportDefaultDeclaration(ast))
         },
@@ -79,7 +79,9 @@ module.exports = (route, parent, newFilePath) => {
         permission: PERMISSION_PAGE.${route.permission},
         record: true 
       },
-      component: () => import('${route.component}').catch(catchImport),
+      component: () => import(
+        /* webpackChunkName: "${parent.fullpath.replace(/\//g, '-')}-${route.path}" */
+        '${route.component}').catch(()=>false),
     })`).expression
 
   if (newFilePath) {
@@ -95,6 +97,6 @@ module.exports = (route, parent, newFilePath) => {
   const {code} = babel.transformFileSync(parent.filepath, {
     plugins: [[saveSubRoutePlugin, {ast, newFilePath, key, parentPath: parent.path}]],
   })
-  
+
   fs.writeFileSync(parent.filepath, code, 'utf8')
 }

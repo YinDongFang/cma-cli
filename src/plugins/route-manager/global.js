@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-22 11:14:47
- * @LastEditTime: 2020-07-22 17:13:47
+ * @LastEditTime: 2020-07-23 16:41:15
  * @LastEditors: Ian
  * @Description:
  */
@@ -11,7 +11,9 @@ const fs = require('fs')
 
 function flat(parent) {
   return (res, item) => {
+    item.path = item.path.replace(/\//, '')
     item.title = item.meta.title ? global.translate(item.meta.title) : item.path.replace('/', '')
+    item.fullpath = parent ? parent.path + '/' + item.path : item.path
     item.fullname = parent ? parent.title + '-' + item.title : item.title
     return item.children ? res.concat(item.children.reduce(flat(item), [item])) : res.concat([item])
   }
