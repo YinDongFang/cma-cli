@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-08-07 14:58:04
- * @LastEditTime: 2020-08-07 18:32:50
+ * @LastEditTime: 2020-08-07 18:59:36
  * @LastEditors: Ian
  * @Description:
  */
@@ -11,6 +11,7 @@ const fs = require('fs')
 const vscode = require('vscode')
 const VuexTreeProvider = require('./vuexTree')
 const match = require('./match')
+const clipboardy = require('clipboardy')
 
 const treeProvider = new VuexTreeProvider()
 
@@ -56,8 +57,6 @@ function activate(context, output) {
             ? path.join(root, `${label}.js`)
             : path.join(root, 'module', module, `${label}.js`)
 
-        console.log(filepath)
-
         if (fs.existsSync(filepath)) {
           vscode.window.showTextDocument(vscode.Uri.file(filepath))
           return
@@ -67,14 +66,22 @@ function activate(context, output) {
       filepath =
         module === '_' ? path.join(root, 'index.js') : path.join(root, 'module', module, 'index.js')
 
-      console.log(filepath)
       if (!fs.existsSync(filepath) && module !== '_')
         filepath = path.join(root, 'module', `${module}.js`)
 
-      console.log(filepath)
       if (!fs.existsSync(filepath)) return
 
       vscode.window.showTextDocument(vscode.Uri.file(filepath))
+    }),
+    vscode.commands.registerCommand('cmacli.vueStore.copy', ({label}) => {
+      clipboardy.writeSync(label)
+      vscode.window.showInformationMessage('复制成功')
+    }),
+    vscode.commands.registerCommand('cmacli.vueStore.find', async ({label}) => {
+      clipboardy.writeSync(label)
+      await vscode.commands.executeCommand('actions.find')
+      await vscode.commands.executeCommand('editor.action.clipboardPasteAction')
+      await vscode.commands.executeCommand('editor.action.nextMatchFindAction')
     })
   )
 

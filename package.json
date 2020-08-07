@@ -106,6 +106,16 @@
       ],
       "view/item/context": [
         {
+          "command": "cmacli.vueStore.find",
+          "when": "view == vuex && viewItem == vuexItem",
+          "group": "inline"
+        },
+        {
+          "command": "cmacli.vueStore.copy",
+          "when": "view == vuex && viewItem == vuexItem",
+          "group": "inline"
+        },
+        {
           "command": "cmacli.vueStore.file",
           "when": "view == vuex && viewItem == vuexModule || viewItem == vuexProp",
           "group": "inline"
@@ -227,6 +237,16 @@
         "command": "cmacli.vueStore.file",
         "title": "Open the file",
         "icon": "src/media/file.svg"
+      },
+      {
+        "command": "cmacli.vueStore.copy",
+        "title": "Copy the key",
+        "icon": "src/media/copy.svg"
+      },
+      {
+        "command": "cmacli.vueStore.find",
+        "title": "Find the reference",
+        "icon": "src/media/search.svg"
       }
     ],
     "views": {
