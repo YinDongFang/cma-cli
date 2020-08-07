@@ -1,6 +1,6 @@
 {
   "name": "lifetouch-cma-cli",
-  "version": "1.2.6",
+  "version": "1.3.0",
   "description": "户乐CMA项目脚手架",
   "scripts": {
     "lint": "eslint .",
@@ -71,6 +71,11 @@
           "type": "string",
           "default": "",
           "description": "Specifies the custom vue template folder path relative to workspaceFolder."
+        },
+        "cmaCli.storeFolder": {
+          "type": "string",
+          "default": "/src/store",
+          "description": "Specifies the vuex store folder path relative to workspaceFolder."
         }
       }
     },
@@ -100,6 +105,11 @@
         }
       ],
       "view/item/context": [
+        {
+          "command": "cmacli.vueStore.file",
+          "when": "view == vuex && viewItem == vuexModule || viewItem == vuexProp",
+          "group": "inline"
+        },
         {
           "command": "cmacli.svgViewer.treeView.copy",
           "when": "view == svg",
@@ -212,9 +222,20 @@
         "command": "cmacli.routeManager.treeView.create",
         "title": "Create New Route",
         "icon": "src/media/plus.svg"
+      },
+      {
+        "command": "cmacli.vueStore.file",
+        "title": "Open the file",
+        "icon": "src/media/file.svg"
       }
     ],
     "views": {
+      "explorer": [
+        {
+          "id": "vuex",
+          "name": "vuex reference"
+        }
+      ],
       "cma-cli": [
         {
           "id": "route",

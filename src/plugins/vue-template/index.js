@@ -25,7 +25,7 @@ function activate(context, output) {
 
       const workspaceFolder =
         vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0]
-      const custom = config && workspaceFolder ? path.resolve(workspaceFolder.uri.fsPath, config) : ''
+      const custom = config && workspaceFolder ? path.join(workspaceFolder.uri.fsPath, config) : ''
 
       output.appendLine(`custom vue template folder path: ${custom}`)
 
