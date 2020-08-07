@@ -1,11 +1,41 @@
 const vscode = require('vscode')
 const path = require('path')
 const fs = require('fs')
+const {tify} = require('chinese-conv')
 
 const global = require(path.resolve(__dirname, '../global'))
 const {toConst, toCamel, toPascal} = require('./utils/convert')
 const {modifyPermission, modifyRouteEnums} = require('./utils/modify')
 const save = require('./utils/save')
+
+const modifyRouteI18n = (keypath, value) => {
+  const langs = ['zh-CN', 'en', 'zh-HK']
+  const map = new Map()
+  const i18ns = langs.map((lang) => {
+    const filepath = global.routeNamesFilePath.replace('{lang}', lang)
+    const i18n = JSON.parse(fs.readFileSync(filepath, 'utf8'))
+    map.set(lang, i18n)
+    return i18n
+  })
+
+  function apply(target, path, value) {
+    const chains = path.split('.')
+    while (chains.length > 1) {
+      target = target[chains.shift()]
+    }
+    target[chains[0]] = value
+  }
+
+  apply(i18ns[0], keypath, value)
+  apply(i18ns[1], keypath, value)
+  apply(i18ns[2], keypath, tify(value))
+
+  langs.forEach((lang) => {
+    const filepath = global.routeNamesFilePath.replace('{lang}', lang)
+    const text = JSON.stringify(map.get(lang), null, 2)
+    fs.writeFileSync(filepath, text, 'utf8')
+  })
+}
 
 async function i18nKeypath(defaultValue) {
   function exists(keypath) {
@@ -21,13 +51,17 @@ async function i18nKeypath(defaultValue) {
 
   if (!keypath) return
 
-  if (!exists(keypath)) {
-    await vscode.commands.executeCommand('i18n-ally.new-key', `route.${keypath}`)
-    console.log('save i18n key')
-    global.i18n = JSON.parse(fs.readFileSync(global.routeNamesFilePath))
-    console.log('i18ns after save')
-    console.dir(global.i18n)
-    return exists(keypath) && keypath
+  const existedValue = exists(keypath)
+  if (!existedValue) {
+    const value = await vscode.window.showInputBox({
+      placeHolder: '简体中文',
+      prompt: 'Please enter the title value in zh-CN',
+      ignoreFocusOut: true,
+    })
+
+    if (!value) return
+
+    return [keypath, value]
   }
 
   const result = await vscode.window.showInformationMessage(
@@ -36,7 +70,7 @@ async function i18nKeypath(defaultValue) {
     'Yes',
     'Re-enter'
   )
-  if (result === 'Yes') return keypath
+  if (result === 'Yes') return [`route.${keypath}`, existedValue]
   if (result === 'Re-enter') return i18nKeypath(keypath)
 }
 
@@ -50,9 +84,10 @@ async function validateEnumkey(defaultValue) {
   if (!key) return
 
   const cons = toConst(key)
-  if (!global.routeEnumsRevertMap.get(key) && !global.routeEnums[cons]) {
-    modifyRouteEnums(cons, key)
-    return cons
+  const existedCons = global.routeEnumsRevertMap.get(key)
+  const existedValue = global.routeEnums[cons]
+  if (!existedCons && !existedValue) {
+    return [cons, key]
   }
 
   const result = await vscode.window.showInformationMessage(
@@ -61,7 +96,7 @@ async function validateEnumkey(defaultValue) {
     'Yes',
     'Re-enter'
   )
-  if (result === 'Yes') return key
+  if (result === 'Yes') return existedCons ? [existedCons, key] : [cons, existedValue]
   if (result === 'Re-enter') return validateEnumkey(key)
 }
 
@@ -75,9 +110,10 @@ async function validatePermission(defaultValue) {
   if (!key) return
 
   const cons = toConst(key)
-  if (!global.permissionRevertMap.get(key) && !global.permissions[cons]) {
-    modifyPermission(cons, `${key}PermissionList`)
-    return cons
+  const existedCons = global.permissionRevertMap.get(key)
+  const existedValue = global.permissions[cons]
+  if (!existedCons && !existedValue) {
+    return [cons, key]
   }
 
   const result = await vscode.window.showInformationMessage(
@@ -86,7 +122,7 @@ async function validatePermission(defaultValue) {
     'Yes',
     'Re-enter'
   )
-  if (result === 'Yes') return key
+  if (result === 'Yes') return existedCons ? [existedCons, key] : [cons, existedValue]
   if (result === 'Re-enter') return validatePermission(key)
 }
 
@@ -96,8 +132,6 @@ module.exports = async function (route) {
     ignoreFocusOut: true,
   })
   if (!keypath) return
-
-  console.log(route.fullpath)
 
   const fullpath = route.fullpath.replace(/\//g, '.') + '.' + keypath
   const cons = fullpath.toUpperCase().replace(/\./g, '_')
@@ -158,8 +192,6 @@ module.exports = async function (route) {
   view = '@' + path.relative(global.root, view).replace(/\\/g, '/')
   global.output.appendLine(`the relative path is: ${view}`)
 
-  console.dir({keypath, title, enumKey, permission, isHeader, view})
-
   const result = await vscode.window.showInformationMessage(
     'Whether save the route information in new file or current file?',
     {modal: true},
@@ -178,12 +210,16 @@ module.exports = async function (route) {
     if (!newFilePath) return
   }
 
+  modifyRouteI18n(...title)
+  modifyPermission(...permission)
+  modifyRouteEnums(...enumKey)
+
   save(
     {
       path: keypath,
-      name: enumKey,
-      permission,
-      title: title,
+      name: enumKey[0],
+      permission: `${permission[0]}PermissionList`,
+      title: `route.${title[0]}`,
       isHeader: !!isHeader,
       component: view,
     },

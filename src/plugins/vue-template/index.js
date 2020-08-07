@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-06 14:03:59
- * @LastEditTime: 2020-07-23 10:42:47
+ * @LastEditTime: 2020-08-07 14:19:31
  * @LastEditors: Ian
  * @Description:
  */
@@ -20,9 +20,12 @@ function activate(context, output) {
       output.appendLine(`target folder path: ${folder}`)
 
       const config = vscode.workspace.getConfiguration('cmaCli').get('vueTemplateFolder')
+
+      output.appendLine(`config vueTemplateFolder: ${config}`)
+
       const workspaceFolder =
         vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0]
-      const custom = config && workspaceFolder ? path.resolve(workspaceFolder, config) : ''
+      const custom = config && workspaceFolder ? path.resolve(workspaceFolder.uri.fsPath, config) : ''
 
       output.appendLine(`custom vue template folder path: ${custom}`)
 

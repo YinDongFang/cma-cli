@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-22 11:14:47
- * @LastEditTime: 2020-07-23 16:41:15
+ * @LastEditTime: 2020-08-07 13:49:02
  * @LastEditors: Ian
  * @Description:
  */
@@ -59,7 +59,7 @@ const global = {
     this.routeEnumsFilePath = modules.find((m) => m.includes('routeEnums'))
     this.permissions = result.PERMISSION_PAGE
     this.routeEnums = result.RouteEnums
-    this.i18n = JSON.parse(fs.readFileSync(this.routeNamesFilePath))
+    this.i18n = JSON.parse(fs.readFileSync(this.routeNamesFilePath.replace('{lang}', 'zh-CN')))
     this.routes = result.routes
 
     // 保存展开数组，同时进行翻译等工作

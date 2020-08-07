@@ -73,15 +73,8 @@ module.exports = (route, parent, newFilePath) => {
     {
       path: '${route.path}',
       name: RouteEnums.${route.name},
-      meta: { 
-        title: ('${route.title}'), 
-        isHeader: ${route.isHeader}, 
-        permission: PERMISSION_PAGE.${route.permission},
-        record: true 
-      },
-      component: () => import(
-        /* webpackChunkName: "${parent.fullpath.replace(/\//g, '-')}-${route.path}" */
-        '${route.component}').catch(()=>false),
+      meta: { title: ('${route.title}'), isHeader: ${route.isHeader}, permission: PERMISSION_PAGE.${route.permission}, record: true },
+      component: () => import(/* webpackChunkName: "${parent.fullpath.replace(/\//g, '-')}-${route.path}" */'${route.component}').catch(_ => false),
     })`).expression
 
   if (newFilePath) {
