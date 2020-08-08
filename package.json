@@ -2,12 +2,16 @@
   "name": "lifetouch-cma-cli",
   "version": "1.4.1",
   "description": "户乐CMA项目脚手架",
-  "repository": "https://github.com/YinDongFang/cma-cli.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YinDongFang/cma-cli.git"
+  },
+  "homepage": "https://github.com/YinDongFang/cma-cli",
   "displayName": "lifetouch-cma-cli",
   "engines": {
     "vscode": "^1.46.0"
   },
-  "icon": "https://raw.githubusercontent.com/YinDongFang/cma-cli/master/src/logo.png",
+  "icon": "src/logo.png",
   "keywords": [
     "cmd",
     "lifetouch"
