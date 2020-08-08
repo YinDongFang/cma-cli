@@ -1,6 +1,6 @@
 {
   "name": "lifetouch-cma-cli",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "户乐CMA项目脚手架",
   "scripts": {
     "lint": "eslint .",
@@ -105,6 +105,11 @@
         }
       ],
       "view/item/context": [
+        {
+          "command": "cmacli.componentsRef.file",
+          "when": "view == components",
+          "group": "inline"
+        },
         {
           "command": "cmacli.vueStore.find",
           "when": "view == vuex && viewItem == vuexItem",
@@ -247,6 +252,11 @@
         "command": "cmacli.vueStore.find",
         "title": "Find the reference",
         "icon": "src/media/search.svg"
+      },
+      {
+        "command": "cmacli.componentsRef.file",
+        "title": "Open the component file",
+        "icon": "src/media/file.svg"
       }
     ],
     "views": {
@@ -254,6 +264,10 @@
         {
           "id": "vuex",
           "name": "vuex reference"
+        },
+        {
+          "id": "components",
+          "name": "component references"
         }
       ],
       "cma-cli": [

@@ -2,12 +2,13 @@ const vscode = require('vscode')
 
 const path = './plugins/'
 const list = [
-  'js2json',
+  'vue-store',
+  'components-ref',
+  'route-manager',
   'svg-decorator',
   'svg-viewer',
   'vue-template',
-  'route-manager',
-  'vue-store',
+  'js2json',
 ]
 
 async function activate(context) {
