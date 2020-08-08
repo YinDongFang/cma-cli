@@ -1,6 +1,6 @@
 {
   "name": "lifetouch-cma-cli",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "户乐CMA项目脚手架",
   "repository": "https://github.com/YinDongFang/cma-cli.git",
   "displayName": "lifetouch-cma-cli",
@@ -152,6 +152,11 @@
           "group": "inline"
         },
         {
+          "command": "cmacli.svgViewer.treeView.file",
+          "when": "view == svg",
+          "group": "navigation"
+        },
+        {
           "command": "cmacli.routeManager.treeView.permission",
           "when": "view == route && viewItem == subRoute",
           "group": "inline"
@@ -218,6 +223,11 @@
         "command": "cmacli.svgViewer.treeView.view",
         "title": "View",
         "icon": "src/media/view.svg"
+      },
+      {
+        "command": "cmacli.svgViewer.treeView.file",
+        "title": "Reveal in File explorer",
+        "icon": "src/media/file.svg"
       },
       {
         "command": "cmacli.routeManager.treeView.refresh",

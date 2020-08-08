@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-08 12:52:27
- * @LastEditTime: 2020-07-08 14:03:14
+ * @LastEditTime: 2020-08-08 12:47:50
  * @LastEditors: Ian
  * @Description:
  */
@@ -37,15 +37,16 @@ module.exports = class SvgTreeProvider {
       .filter((file) => path.extname(file) === '.svg')
       .map((file) => svgo(path.join(svgFolder, file), []))
     return Promise.all(promises).then((list) => {
-      return list.map(({data, path: url}) => new SvgItem(vscode.Uri.parse(data), path.basename(url, '.svg')))
+      return list.map(({data, path: url}) => new SvgItem(vscode.Uri.parse(data), path.basename(url, '.svg'), url))
     })
   }
 }
 
 class SvgItem extends vscode.TreeItem {
-  constructor(iconUri, label) {
+  constructor(iconUri, label, filepath) {
     super(label, vscode.TreeItemCollapsibleState.None)
     this.iconPath = iconUri
+    this.filepath = filepath
   }
 
   get tooltip() {

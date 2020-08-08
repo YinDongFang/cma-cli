@@ -2,7 +2,7 @@
  * @Author: Ian
  * @Email: 1136005348@qq.com
  * @Date: 2020-07-06 14:03:59
- * @LastEditTime: 2020-07-20 23:18:36
+ * @LastEditTime: 2020-08-08 12:48:57
  * @LastEditors: Ian
  * @Description:
  */
@@ -29,7 +29,11 @@ function getWebViewContent(context, folder) {
 
   let html = fs.readFileSync(index, 'utf-8')
   html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (m, $1, $2) => {
-    return $1 + vscode.Uri.file(path.join(resourcePath, $2)).with({scheme: 'vscode-resource'}).toString() + '"'
+    return (
+      $1 +
+      vscode.Uri.file(path.join(resourcePath, $2)).with({scheme: 'vscode-resource'}).toString() +
+      '"'
+    )
   })
   return html
 }
@@ -138,11 +142,14 @@ function activate(context) {
   })
   vscode.commands.registerCommand('cmacli.svgViewer.treeView.copy', (svgItem) => {
     clipboardy.writeSync(svgItem.label)
-    vscode.window.showInformationMessage('复制成功');
+    vscode.window.showInformationMessage('复制成功')
   })
   vscode.commands.registerCommand('cmacli.svgViewer.treeView.code', (svgItem) => {
     clipboardy.writeSync(`<svg-icon icon-class="${svgItem.label}" />`)
-    vscode.window.showInformationMessage('复制成功');
+    vscode.window.showInformationMessage('复制成功')
+  })
+  vscode.commands.registerCommand('cmacli.svgViewer.treeView.file', ({filepath}) => {
+    vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(filepath))
   })
 }
 
