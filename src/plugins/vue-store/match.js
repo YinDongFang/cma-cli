@@ -2,8 +2,8 @@ const MAP_STATE = /mapState\((([^)]|\n)*)\)/g
 const MAP_GETTERS = /mapGetters\((([^)]|\n)*)\)/g
 const MAP_ACTIONS = /mapActions\((([^)]|\n)*)\)/g
 const MAP_MUTATIONS = /mapMutations\((([^)]|\n)*)\)/g
-const $STORE_STATE = /\$store[\n\s]*\.[\n\s]*state([\n\s]*\.[\n\s]*(\w*))+/g
-const $STORE_GETTERS = /\$store[\n\s]*\.[\n\s]*getters([\n\s]*\.[\n\s]*(\w*))+/g
+const $STORE_STATE = /\$store[\n\s]*\.[\n\s]*state[\n\s]*\.[\n\s]*((\w*)([\n\s]*\.[\n\s]*(\w*))*)/g
+const $STORE_GETTERS = /\$store[\n\s]*\.[\n\s]*getters[\n\s]*\.[\n\s]*((\w*)([\n\s]*\.[\n\s]*(\w*))*)/g
 const $STORE_COMMIT = /\$store[\n\s]*\.[\n\s]*commit\([\n\s]*['"]([\w\/]*)['"]([g^)]|\n|\s)*\)/g
 const $STORE_DISPATCH = /\$store[\n\s]*\.[\n\s]*dispatch\([\n\s]*['"]([\w\/]*)['"]([^)]|\n|\s)*\)/g
 
@@ -16,7 +16,7 @@ const parse = (expression) => {
 const splitModuleProperty = (matches, separator) => {
   return matches.map((text) => {
     const [module, value] = text.split(separator, 2)
-    return [module, [value]]
+    return value ? [module, [value]] : ['_', [module]]
   })
 }
 
